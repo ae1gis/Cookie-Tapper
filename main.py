@@ -4,12 +4,23 @@ testing: bool = False
 
 cookies: int = 0
 buildings_owned: dict[str, int] = {"Clicker": 0, "Grandma": 0}
+upgrades_owned: dict[str, dict[str, bool | float | str]] = {
+    "Clicker MK1": {"owned": False, "mult": 2, "affects": "Clicker"},
+    "Grandma MK1": {"owned": False, "mult": 2, "affects": "Grandma"}
+}
+click_amount: int = 1
+mult: float = 0
 click_delay: float = 0.5
 
-def openLog(buildings_owned: dict[str, int]):
+def openLog(buildings_owned: dict[str, int], upgrades_owned: dict[str, dict[str, bool | float | str]]):
     print()
     for key, value in buildings_owned.items():
         print(f"{key}: {value}")
+        sleep(0.5)
+
+    for key, value in upgrades_owned.items():
+        if value["owned"]:
+            print(f"{key}: {value['mult']}")
         sleep(0.5)
 
 def cookieTap(buildings_owned: dict[str, int], click: int, mult: float):
@@ -58,6 +69,7 @@ def openShop(buildings: dict[str, int], cookies: int):
 def main():
     global cookies
     global buildings_owned
+    global upgrades_owned
 
     if not testing:
         print("Welcome to Cookie Tapper!\n")
@@ -91,7 +103,7 @@ def main():
                 sleep(click_delay)
                 exit()
             case "log":
-                openLog(buildings_owned)
+                openLog(buildings_owned, upgrades_owned)
             case _:
                 print("???")
 
