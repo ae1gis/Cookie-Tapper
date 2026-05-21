@@ -58,14 +58,14 @@ def openShop(buildings: dict[str, int], cookies: int, upgrades: dict[str, dict[s
     match user_selection:
         case "1":
             if cookies >= 15:
-                print(f"{buildings["Clicker"]} -> {buildings["Clicker"] + 1}")
+                print(f"{buildings['Clicker']} -> {buildings['Clicker'] + 1}")
                 buildings["Clicker"] += 1
                 checkout -= 15
             else:
                 print("Not enough cookies...")
         case "2":
             if cookies >= 100:
-                print(f"{buildings["Grandma"]} -> {buildings["Grandma"] + 1}")
+                print(f"{buildings['Grandma']} -> {buildings['Grandma'] + 1}")
                 buildings["Grandma"] += 1
                 checkout -= 100
             else:
