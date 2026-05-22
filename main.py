@@ -1,140 +1,137 @@
 from time import sleep
 
-testing: bool = False
+def startGame(quickStart: bool):
+    print("Welcome to Cookie Tapper!\n")
 
-cookies: int = 0
-buildings_owned: dict[str, int] = {"Clicker": 0, "Grandma": 0}
-upgrades_owned: dict[str, dict[str, bool | float | str]] = {
-    "Clicker MK2": {"owned": False, "mult": 2, "affects": "Clicker"},
-    "Grandma MK2": {"owned": False, "mult": 2, "affects": "Grandma"}
-}
-click_amount: int = 1
-universal_mult: float = 0
-click_delay: float = 0.5
+    if quickStart:
+        return
 
-def openLog(buildings_owned: dict[str, int], upgrades_owned: dict[str, dict[str, bool | float | str]]):
-    print()
-    for key, value in buildings_owned.items():
-        print(f"{key}: {value}")
+    print("loading", end="", flush=True)
+
+    for _ in range(8):
         sleep(0.5)
+        print(".", end="", flush=True)
+    print("\n\n")
 
-    for key, value in upgrades_owned.items():
-        if value["owned"]:
-            print(f"{key}: {value['mult']}")
-        sleep(0.5)
+    print("------ COMMANDS ------")
+    print("ENTER -> Tap the cookie")
+    print("shop -> Enter the shop")
+    print("log -> Show owned items")
+    #debug -> Enables debug tools
+    print("quit -> Exit the game\n")
 
-def cookieTap(buildings_owned: dict[str, int], upgrades: dict[str, dict[str, bool | float | str]], click_amount: int):
-    building_amount: int = 0
-    for key, value in buildings_owned.items():
-        match key:
-            case "Clicker":
-                if upgrades["Clicker MK2"]["owned"]:
-                    building_amount += (1 * int(upgrades["Clicker MK2"]["mult"])) * value
-                else:
-                    building_amount += 1 * value
-            case "Grandma":
-                if upgrades["Grandma MK2"]["owned"]:
-                    building_amount += (5 * int(upgrades["Grandma MK2"]["mult"])) * value
-                else:
-                    building_amount += 5 * value
+def calculateCPS(building: dict[str, dict[str, int]], upgrade: dict[str, dict[str, bool | int | str]]):
+    cps: int = 1
+    baseIncome: int = 0
+
+    for nameBuilding, statBuilding in building.items():
+        baseIncome = statBuilding["cps"] * statBuilding["owned"]
+        multiplier: float = 1.0
+
+        for _, statUpgrade in upgrade.items():
+            if statUpgrade["appliesTo"] == nameBuilding and statUpgrade["owned"]:
+                multiplier += (float(statUpgrade["multiplier"]) - 1.0)
+
+        cps += int(baseIncome * multiplier)
+        baseIncome = 0
+
+    return cps
+
+def attemptBuildingPurchase(cookies: int, building: dict):
+    if cookies >= building["cost"]:
+        building["owned"] += 1
+        return cookies - building["cost"]
+    else:
+        print("Not enough cookies...\n")
+        return cookies
+
+def attemptUpgradePurchase(cookies: int, upgrade: dict):
+    if upgrade["owned"]:
+        print("You already own this upgrade...\n")
+    elif cookies >= upgrade["cost"]:
+        upgrade["owned"] = True
+        cookies -= upgrade["cost"]
+    else:
+        print("Not enough cookies...\n")
+
+    return cookies
+
+def openShop(building: dict[str, dict[str, int]], upgrade: dict[str, dict[str, bool | int | str]], cookies: int):
+    while True:
+        print("--- Shop ---")
+        print("1. Clicker: +1CPS -> 15 cookies")
+        print("2. Grandma: +5CPS -> 100 cookies")
+        print("3. Bakery: +20CPS -> 1000 cookies")
+        print("4. Factory: +50CPS -> 5000 cookies")
+        print("5. Clicker I: Clicker 2x Mult")
+        print("6. Grandma I: Grandma 2x Mult\n")
+
+        print(f"You have {cookies} cookies")
+
+        userInput: str = input(">>> ")
+
+        match userInput:
+            case "1":
+                cookies = attemptBuildingPurchase(cookies, building["Clicker"])
+            case "2":
+                cookies = attemptBuildingPurchase(cookies, building["Grandma"])
+            case "3":
+                cookies = attemptBuildingPurchase(cookies, building["Bakery"])
+            case "4":
+                cookies = attemptBuildingPurchase(cookies, building["Factory"])
+            case "5":
+                cookies = attemptUpgradePurchase(cookies, upgrade["Clicker I"])
+            case "6":
+                cookies = attemptUpgradePurchase(cookies, upgrade["Grandma I"])
+            case "quit":
+                return cookies
             case _:
-                pass
+                print("Invalid command...")
 
-    sleep(click_delay)
-    return int(click_amount + building_amount)
+def openLog():
+    pass
 
-def openShop(buildings: dict[str, int], cookies: int, upgrades: dict[str, dict[str, bool | float | str]]):
-    print("Shop:")
-    print("1. Clicker -> 15 cookies")
-    print("2. Grandma -> 100 cookies")
-
-    print("3. Clicker MK2 -> 250 cookies")
-    print("4. Grandma MK2 -> 500 cookies")
-
-    checkout = 0
-
-    user_selection: str = input("Enter a number >>> ")
-    
-    match user_selection:
-        case "1":
-            if cookies >= 15:
-                print(f"{buildings['Clicker']} -> {buildings['Clicker'] + 1}")
-                buildings["Clicker"] += 1
-                checkout -= 15
-            else:
-                print("Not enough cookies...")
-        case "2":
-            if cookies >= 100:
-                print(f"{buildings['Grandma']} -> {buildings['Grandma'] + 1}")
-                buildings["Grandma"] += 1
-                checkout -= 100
-            else:
-                print("Not enough cookies...")
-        case "3":
-            if upgrades["Clicker MK2"]["owned"] == True:
-                print("You already own Clicker MK2...")
-                return 0
-            elif cookies >= 250:
-                upgrades["Clicker MK2"]["owned"] = True
-                checkout -= 250
-            else:
-                print("Not enough cookies...")
-        case "4":
-            if upgrades["Grandma MK2"]["owned"] == True:
-                print("You already own Grandma MK2...")
-                return 0
-            elif cookies >= 500:
-                upgrades["Grandma MK2"]["owned"] = True
-                checkout -= 500
-            else:
-                print("Not enough cookies...")
-        case _:
-            print("Invalid command...")
-
-    return checkout
+def enableDebugTools():
+    pass
 
 def main():
-    global cookies
-    global buildings_owned
-    global upgrades_owned
-    global click_amount
+    cookies: int = 0
 
-    if not testing:
-        print("Welcome to Cookie Tapper!\n")
-        print("Loading", end="", flush=True)
+    building: dict[str, dict[str, int]] = {
+        "Clicker": {"owned": 0, "cost": 15, "cps": 1},
+        "Grandma": {"owned": 0, "cost": 100, "cps": 5},
+        "Bakery": {"owned": 0, "cost": 1000, "cps": 20},
+        "Factory": {"owned": 0, "cost": 5000, "cps": 50}
+    }
 
-        sleep(1)
-        print(".", end="", flush=True)
+    upgrade: dict[str, dict[str, bool | int | str]] = {
+        "Clicker I": {"owned": False, "cost": 200, "multiplier": 2, "appliesTo": "Clicker"},
+        "Grandma I": {"owned": False, "cost": 1000, "multiplier": 2, "appliesTo": "Grandma"}
+    }
 
-        sleep(1)
-        print(".", end="", flush=True)
-
-        sleep(1)
-        print(".", end="", flush=True)
-
-        sleep(2)
-    else:
-        pass
+    startGame(quickStart=False)
 
     while True:
-        print(f"\nYou have {cookies} cookies")
-        user_input: str = input("Press ENTER >>> ")
+        print(f"\nCookies -> {cookies}")
 
-        match user_input:
+        userInput: str = input(">>> ")
+
+        match userInput:
             case "":
-                cookies += cookieTap(buildings_owned, upgrades_owned, click_amount)
+                cookies += calculateCPS(building, upgrade)
             case "shop":
-                print()
-                cookies += openShop(buildings_owned, cookies, upgrades_owned)
-            case "quit":
-                print("\nGoodbye!")
-                sleep(click_delay)
-                exit()
+                cookies = openShop(building, upgrade, cookies)
             case "log":
-                openLog(buildings_owned, upgrades_owned)
+                openLog()
+            case "debug":
+                pass
+            case "quit":
+                print("\nGoodbye...")
+                sleep(1)
+                exit()
             case _:
-                print("???")
+                print("\nWARNING: Unrecongized command...")
+
 
 if __name__ == "__main__":
     main()
-
