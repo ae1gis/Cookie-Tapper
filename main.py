@@ -88,8 +88,12 @@ def openShop(building: dict[str, dict[str, int]], upgrade: dict[str, dict[str, b
             case _:
                 print("Invalid command...")
 
-def openLog():
-    pass
+def openLog(building: dict, upgrade: dict):
+    for name, stat in building.items():
+        print(f"{name}: {stat["owned"]}")
+
+    for name, stat in upgrade.items():
+        print(f"{name}: {stat["owned"]}")
 
 def enableDebugTools():
     pass
@@ -122,7 +126,7 @@ def main():
             case "shop":
                 cookies = openShop(building, upgrade, cookies)
             case "log":
-                openLog()
+                openLog(building, upgrade)
             case "debug":
                 pass
             case "quit":
