@@ -17,7 +17,6 @@ def startGame(quickStart: bool):
     print("ENTER -> Tap the cookie")
     print("shop -> Enter the shop")
     print("log -> Show owned items")
-    #debug -> Enables debug tools
     print("quit -> Exit the game\n")
 
 def calculateCPS(building: dict[str, dict[str, int]], upgrade: dict[str, dict[str, bool | int | str]]):
@@ -95,9 +94,6 @@ def openLog(building: dict, upgrade: dict):
     for name, stat in upgrade.items():
         print(f"{name}: {stat["owned"]}")
 
-def enableDebugTools():
-    pass
-
 def main():
     cookies: int = 0
 
@@ -127,8 +123,6 @@ def main():
                 cookies = openShop(building, upgrade, cookies)
             case "log":
                 openLog(building, upgrade)
-            case "debug":
-                pass
             case "quit":
                 print("\nGoodbye...")
                 sleep(1)
