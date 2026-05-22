@@ -6,5 +6,5 @@ Goals:
   - Add upgrades \[X]
   - Add save system \[X]
   - Fix the cookie tap cooldown \[ ]
-  - Add offline cookie accumulation \[ ]
+  - Add passive cookie accumulation \[ ]
   - Add GUI? \[ ]
