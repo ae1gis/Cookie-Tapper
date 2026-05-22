@@ -1,4 +1,6 @@
 from time import sleep
+import json
+import os
 
 def startGame(quickStart: bool):
     print("Welcome to Cookie Tapper!\n")
@@ -94,6 +96,30 @@ def openLog(building: dict, upgrade: dict):
     for name, stat in upgrade.items():
         print(f"{name}: {stat["owned"]}")
 
+def saveGame(cookies: int, building: dict, upgrade: dict):
+    saveData: dict = {
+        "cookies": cookies,
+        "building": building,
+        "upgrade": upgrade
+    }
+
+    try:
+        with open(file="game_save.json", mode="w") as file:
+            json.dump(saveData, file, indent=4)
+        print("Game has beed saved...")
+    except Exception as e:
+        print(f"Game save failed: {e}")
+
+def loadSave():
+    if os.path.exists("game_save.json"):
+        try:
+            with open(file="game_save.json", mode="r") as file:
+                print("Save found...")
+                return json.load(file)
+        except Exception as e:
+            print(f"Failed to load save: {e}")
+    return None
+
 def main():
     cookies: int = 0
 
@@ -111,6 +137,14 @@ def main():
 
     startGame(quickStart=False)
 
+    saveData = loadSave()
+    if saveData:
+        cookies = saveData["cookies"]
+        building.update(saveData["building"])
+        upgrade.update(saveData["upgrade"])
+    else:
+        pass
+
     while True:
         print(f"\nCookies -> {cookies}")
 
@@ -124,6 +158,8 @@ def main():
             case "log":
                 openLog(building, upgrade)
             case "quit":
+                saveGame(cookies, building, upgrade)
+                sleep(1)
                 print("\nGoodbye...")
                 sleep(1)
                 exit()

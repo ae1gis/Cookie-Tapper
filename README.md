@@ -4,7 +4,7 @@ Git, and GitHub.
 
 Goals:
   - Add upgrades \[X]
-  - Add save system \[ ]
+  - Add save system \[X]
   - Fix the cookie tap cooldown \[ ]
   - Add offline cookie accumulation \[ ]
   - Add GUI? \[ ]
